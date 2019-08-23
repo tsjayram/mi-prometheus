@@ -422,23 +422,22 @@ class COG(VideoTextToClassProblem):
 		targets_pointing = data_dict['targets_pointing']
 
 		#build dictionary to store acc families stats
+		training=False
+		if training:
+			categories = ['AndCompareColor', 'AndCompareShape', 'AndSimpleCompareColor',
+						  'AndSimpleCompareShape', 'CompareColor', 'CompareShape', 'Exist',
+						  'ExistColor', 'ExistColorOf', 'ExistColorSpace', 'ExistLastColorSameShape',
+						  'ExistLastObjectSameObject', 'ExistLastShapeSameColor', 'ExistShape',
+						  'ExistShapeOf', 'ExistShapeSpace', 'ExistSpace', 'GetColor', 'GetColorSpace',
+						  'GetShape', 'GetShapeSpace', 'SimpleCompareColor', 'SimpleCompareShape',
+						  'AndSimpleExistColorGo', 'AndSimpleExistGo', 'AndSimpleExistShapeGo', 'CompareColorGo',
+						  'CompareShapeGo', 'ExistColorGo', 'ExistColorSpaceGo', 'ExistGo', 'ExistShapeGo',
+						  'ExistShapeSpaceGo', 'ExistSpaceGo', 'Go', 'GoColor', 'GoColorOf', 'GoShape',
+						  'GoShapeOf', 'SimpleCompareColorGo', 'SimpleCompareShapeGo', 'SimpleExistColorGo',
+						  'SimpleExistGo', 'SimpleExistShapeGo']
 
-
-
-		#categories = ['AndCompareColor', 'AndCompareShape', 'AndSimpleCompareColor',
-		#				   'AndSimpleCompareShape', 'CompareColor', 'CompareShape', 'Exist',
-		#				   'ExistColor', 'ExistColorOf', 'ExistColorSpace', 'ExistLastColorSameShape',
-		#				   'ExistLastObjectSameObject', 'ExistLastShapeSameColor', 'ExistShape',
-		#				   'ExistShapeOf', 'ExistShapeSpace', 'ExistSpace', 'GetColor', 'GetColorSpace',
-		#				   'GetShape', 'GetShapeSpace', 'SimpleCompareColor', 'SimpleCompareShape',
-		#				   'AndSimpleExistColorGo', 'AndSimpleExistGo', 'AndSimpleExistShapeGo', 'CompareColorGo',
-		#				   'CompareShapeGo', 'ExistColorGo', 'ExistColorSpaceGo', 'ExistGo', 'ExistShapeGo',
-		#				   'ExistShapeSpaceGo', 'ExistSpaceGo', 'Go', 'GoColor', 'GoColorOf', 'GoShape',
-		#				   'GoShapeOf', 'SimpleCompareColorGo', 'SimpleCompareShapeGo', 'SimpleExistColorGo',
-		#				   'SimpleExistGo', 'SimpleExistShapeGo']
-
-		#tuple_list = [[0, 0, 0] for _ in range(len(self.categories))]
-		#categories_stats = dict(zip(categories, tuple_list))
+			tuple_list = [[0, 0, 0] for _ in range(len(self.categories))]
+			categories_stats = dict(zip(categories, tuple_list))
 
 
 		#Get tasks
@@ -827,19 +826,14 @@ class COG(VideoTextToClassProblem):
 		stat_col['acc_answer'] = acc_answer
 		stat_col['acc_pointing'] = acc_pointing
 
-
-		categories = self.categories_stats
-		categories = self.get_acc_per_family(data_dict, logits, categories)
-		for key in categories:
-			stat_col[key] = categories[key][2]
-
-		#print(categories)
+		categories_stats = self.categories_stats
 
 
+		categories_dic = self.get_acc_per_family(data_dict, logits, categories_stats)
+		for key in categories_dic:
+			stat_col[key] = categories_dic[key][2]
 
-
-
-
+#		print(categories_dic)
 
 
 

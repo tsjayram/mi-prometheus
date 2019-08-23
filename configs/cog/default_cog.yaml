@@ -4,17 +4,17 @@ training:
     name: &name COG
     # Size of generated input: [batch_size x sequence_length x classes].
     batch_size: &batch_size 48
-#    tasks: &tasks [AndCompareColor, AndCompareShape , AndSimpleCompareColor,
-#            AndSimpleCompareShape, CompareColor, CompareShape, Exist,
-#            ExistColor, ExistColorOf, ExistColorSpace, ExistLastColorSameShape,
-#            ExistLastObjectSameObject, ExistLastShapeSameColor, ExistShape,
-#            ExistShapeOf, ExistShapeSpace, ExistSpace, GetColor, GetColorSpace,
-#            GetShape, GetShapeSpace, SimpleCompareColor, SimpleCompareShape]
-    tasks: &tasks [AndCompareColor]
+    tasks: &tasks [AndCompareColor, AndCompareShape , AndSimpleCompareColor,
+            AndSimpleCompareShape, CompareColor, CompareShape, Exist,
+            ExistColor, ExistColorOf, ExistColorSpace, ExistLastColorSameShape,
+            ExistLastObjectSameObject, ExistLastShapeSameColor, ExistShape,
+            ExistShapeOf, ExistShapeSpace, ExistSpace, GetColor, GetColorSpace,
+            GetShape, GetShapeSpace, SimpleCompareColor, SimpleCompareShape]
+#    tasks: &tasks [AndCompareColor]
     data_folder: &data_folder '~/data/cog'
-    set: val
+    set: train
     use_mask: &use_mask False
-    dataset_type: &dataset_type canonical
+    dataset_type: &dataset_type hard
   # Set optimizer.
   optimizer:
     name: Adam
@@ -22,15 +22,15 @@ training:
     weight_decay: 0.00002
   gradient_clipping: 10
   terminal_conditions:
-    epoch_limit: 40
+    epoch_limit: 3
     episodes: 100000000
 
 validation:
-  partial_validation_interval: 10
+  partial_validation_interval: 200
   problem:
     name: *name
     # Size of generated input: [batch_size x sequence_length x classes].
-    batch_size: 192
+    batch_size: 400
     tasks: *tasks
     data_folder: *data_folder
     set: val
