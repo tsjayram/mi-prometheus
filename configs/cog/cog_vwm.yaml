@@ -22,5 +22,5 @@ validation:
 testing:
   problem:
     batch_size: 256
-    aggregated: true
+    aggregated: false
 

@@ -22,5 +22,5 @@ testing:
       # ExistLastObjectSameObject,
       # ExistColorSpace, ExistShapeSpace, ExistColorSpace,
     ]
-    aggregated: true
+    aggregated: false
 
