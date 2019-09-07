@@ -119,8 +119,6 @@ class VWM(Model):
         self.mem_0 = torch.nn.Parameter(torch.zeros(1, self.dim).type(self.app_state.dtype))
         self.control_0 = torch.nn.Parameter(torch.zeros(1, self.dim).type(self.app_state.dtype))
 
-        self.dropout_layer = torch.nn.Dropout(self.dropout_param)
-
         self.frame_history = None
 
     def forward(self, data_dict):
@@ -193,11 +191,11 @@ class VWM(Model):
 
         self.frame_history = []
 
+        # RESET OF SUMMARY OBJECT
+        summary_object = summary_object_init
+
         # Loop over all elements along the SEQUENCE dimension.
         for f in range(images.size(0)):
-
-            # RESET OF SUMMARY OBJECT
-            summary_object = summary_object_init
 
             # image encoder
             feature_maps = self.image_encoder(images[f])
