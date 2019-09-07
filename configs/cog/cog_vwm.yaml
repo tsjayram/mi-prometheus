@@ -12,7 +12,7 @@ model:
   words_embed_length : 64
   nwords : 24
   dropout: 0.15
-  save_intermediate: True
+  save_intermediate: true
 
 
 validation:
@@ -22,3 +22,5 @@ validation:
 testing:
   problem:
     batch_size: 256
+    aggregated: true
+
