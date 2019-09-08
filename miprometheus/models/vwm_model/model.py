@@ -338,33 +338,38 @@ class VWM(Model):
         ######################################################################
         # Bottom Center: gates section.
         # Create a specific grid - for gates.
-        gs_bottom_center = GridSpec(4, 1)
+        gs_bottom_center = GridSpec(6, 1)
         gs_bottom_center.update(wspace=0.0, hspace=1, bottom=0.05, top=0.50,
                                 left=0.48, right=0.52)
 
         # Image gate.
         ax_image_match = fig.add_subplot(gs_bottom_center[0, 0])
-        ax_image_match.xaxis.set_major_locator(ticker.NullLocator())
-        ax_image_match.yaxis.set_major_locator(ticker.NullLocator())
         ax_image_match.set_title('Image Match')
 
         # Memory gate.
         ax_memory_match = fig.add_subplot(gs_bottom_center[1, 0])
-        ax_memory_match.xaxis.set_major_locator(ticker.NullLocator())
-        ax_memory_match.yaxis.set_major_locator(ticker.NullLocator())
         ax_memory_match.set_title('Memory Match')
 
         # Replace gate.
         ax_do_replace = fig.add_subplot(gs_bottom_center[2, 0])
-        ax_do_replace.xaxis.set_major_locator(ticker.NullLocator())
-        ax_do_replace.yaxis.set_major_locator(ticker.NullLocator())
         ax_do_replace.set_title('Replace')
 
         # Add new gate.
         ax_do_add_new = fig.add_subplot(gs_bottom_center[3, 0])
-        ax_do_add_new.xaxis.set_major_locator(ticker.NullLocator())
-        ax_do_add_new.yaxis.set_major_locator(ticker.NullLocator())
         ax_do_add_new.set_title('Add New')
+
+        # Valid visual object gate.
+        ax_valid_vo = fig.add_subplot(gs_bottom_center[4, 0])
+        ax_valid_vo.set_title('Valid Visual')
+
+        # Valid visual object gate.
+        ax_valid_mo = fig.add_subplot(gs_bottom_center[5, 0])
+        ax_valid_mo.set_title('Valid Memory')
+
+        for ax in [ax_image_match, ax_memory_match, ax_do_replace, ax_do_add_new,
+                   ax_valid_vo, ax_valid_mo]:
+            ax.xaxis.set_major_locator(ticker.NullLocator())
+            ax.yaxis.set_major_locator(ticker.NullLocator())
 
         ######################################################################
         # Bottom Right: Memory section.
@@ -468,7 +473,8 @@ class VWM(Model):
             (ax_header_left_labels, ax_header_left, ax_header_right_labels, ax_header_right,
              ax_attention_question, ax_temporal_context,
              ax_image, ax_attention_image,
-             ax_image_match, ax_memory_match, ax_do_replace, ax_do_add_new,
+             ax_image_match, ax_memory_match, ax_do_replace,
+             ax_do_add_new, ax_valid_vo, ax_valid_mo,
              ax_read_head, ax_visual_working_memory, ax_write_head) = fig.axes
 
             # initiate list of artists frames
@@ -500,6 +506,9 @@ class VWM(Model):
                     read_head = val_dict['rhd']
                     image_match = val_dict['im_m']
                     memory_match = val_dict['mem_m']
+                    valid_vo = val_dict['v_vo']
+                    valid_mo = val_dict['v_mo']
+
                     visual_working_memory = val_dict['vwm']
                     write_head = val_dict['whd']
                     # preprocess attention image, reshape
@@ -602,6 +611,11 @@ class VWM(Model):
                     # Memory gate.
                     heatmap(ax_do_add_new, do_add_new[[sample], None], fs='large')
 
+                    # Image gate.
+                    heatmap(ax_valid_vo, valid_vo[[sample], None], fs='large')
+
+                    # Memory gate.
+                    heatmap(ax_valid_mo, valid_mo[[sample], None], fs='large')
                     ######################################################################
                     # Bottom Right: Memory section.
 

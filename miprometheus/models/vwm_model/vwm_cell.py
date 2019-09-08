@@ -26,7 +26,7 @@ from miprometheus.models.vwm_model.visual_retrieval_unit import VisualRetrievalU
 from miprometheus.models.vwm_model.summary_unit import SummaryUpdateUnit
 from miprometheus.models.vwm_model.memory_retrieval_unit import MemoryRetrievalUnit
 from miprometheus.models.vwm_model.reasoning_unit import ReasoningUnit
-from miprometheus.utils.app_state import AppState
+# from miprometheus.utils.app_state import AppState
 
 
 class VWMCell(Module):
@@ -88,8 +88,10 @@ class VWMCell(Module):
             summary_object, visual_working_memory, control_state)
 
         # reason about the objects
-        image_match, memory_match, do_replace, do_add_new = self.reasoning_unit(
-            control_state, visual_attention, read_head, temporal_class_weights)
+        (image_match, memory_match, do_replace, do_add_new,
+         valid_vo, valid_mo) = self.reasoning_unit(
+            control_state, visual_object, visual_attention,
+            memory_object, read_head, temporal_class_weights)
 
         # summary update Unit
         new_summary_object = self.summary_unit(
@@ -100,6 +102,7 @@ class VWMCell(Module):
             cs=control_state, ca=control_attention, tcw=temporal_class_weights,
             vo=visual_object, va=visual_attention,
             mo=memory_object, rhd=read_head,
-            im_m=image_match, mem_m=memory_match, do_r=do_replace, do_a=do_add_new)
+            im_m=image_match, mem_m=memory_match, do_r=do_replace, do_a=do_add_new,
+            v_vo=valid_vo, v_mo=valid_mo)
 
         return new_summary_object, vwm_cell_info
