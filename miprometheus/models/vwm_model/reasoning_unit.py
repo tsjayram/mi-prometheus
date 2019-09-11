@@ -42,12 +42,13 @@ class ReasoningUnit(Module):
         # call base constructor
         super(ReasoningUnit, self).__init__()
 
-        self.reasoning_module = torch.nn.Sequential(linear(6, 12, bias=True),
-                                                    torch.nn.ELU(),
-                                                    linear(12, 12, bias=True),
-                                                    torch.nn.ELU(),
-                                                    linear(12, 4, bias=True),
-                                                    torch.nn.Sigmoid())
+        self.visual_object_validator = torch.nn.Sequential(
+            linear(1, 1, bias=True),
+            torch.nn.Sigmoid())
+
+        self.memory_object_validator = torch.nn.Sequential(
+            linear(1, 1, bias=True),
+            torch.nn.Sigmoid())
 
     def forward(self, control_state, visual_attention, read_head, temporal_class_weights):
         """
@@ -67,12 +68,38 @@ class ReasoningUnit(Module):
         va_aggregate = (visual_attention * visual_attention).sum(dim=-1, keepdim=True)
         rh_aggregate = (read_head * read_head).sum(dim=-1, keepdim=True)
 
-        r_in = torch.cat([temporal_class_weights, va_aggregate, rh_aggregate], dim=-1)
-        r_out = self.reasoning_module(r_in)
+        valid_vo = self.visual_object_validator(va_aggregate)
+        valid_vo = valid_vo.squeeze(-1)
 
-        image_match = r_out[..., 0]
-        memory_match = r_out[..., 1]
-        do_replace = r_out[..., 2]
-        do_add_new = r_out[..., 3]
+        valid_mo = self.memory_object_validator(rh_aggregate)
+        valid_mo = valid_mo.squeeze(-1)
+
+        # get t_now, t_last, t_latest, t_none from temporal_class_weights
+        t_now = temporal_class_weights[:, 0]
+        t_last = temporal_class_weights[:, 1]
+        t_latest = temporal_class_weights[:, 2]
+
+        # check if temporal context is last or latest
+        temporal_test_1 = (t_last + t_latest) * (1 - t_now)
+
+        # conditioned on temporal context,
+        # check if we should replace existing memory object
+        do_replace = valid_mo * valid_vo * temporal_test_1
+
+        # otherwise, conditioned on temporal context,
+        # check if we should add a new one to VWM
+        do_add_new = (1 - valid_mo) * valid_vo * temporal_test_1
+
+        # check if temporal context is now or latest
+        temporal_test_2 = (t_now + t_latest) * (1 - t_last)
+
+        # conditioned on temporal context, check if we have a valid visual object
+        image_match = valid_vo * temporal_test_2
+
+        # check if temporal context is either last, or latest without a visual object
+        temporal_test_3 = (t_last + t_latest * (1 - valid_vo)) * (1 - t_now)
+
+        # conditioned on temporal context, check if we have a valid memory object
+        memory_match = valid_mo * temporal_test_3
 
         return image_match, memory_match, do_replace, do_add_new
