@@ -338,33 +338,33 @@ class VWM(Model):
         ######################################################################
         # Bottom Center: gates section.
         # Create a specific grid - for gates.
-        gs_bottom_center = GridSpec(4, 1)
-        gs_bottom_center.update(wspace=0.0, hspace=1, bottom=0.05, top=0.50,
+        gs_bottom_center = GridSpec(1, 1)
+        gs_bottom_center.update(wspace=0.0, hspace=1, bottom=0.27, top=0.35,
                                 left=0.48, right=0.52)
 
-        # Image gate.
-        ax_image_match = fig.add_subplot(gs_bottom_center[0, 0])
-        ax_image_match.xaxis.set_major_locator(ticker.NullLocator())
-        ax_image_match.yaxis.set_major_locator(ticker.NullLocator())
-        ax_image_match.set_title('Image Match')
+        # # Image gate.
+        # ax_image_match = fig.add_subplot(gs_bottom_center[0, 0])
+        # ax_image_match.xaxis.set_major_locator(ticker.NullLocator())
+        # ax_image_match.yaxis.set_major_locator(ticker.NullLocator())
+        # ax_image_match.set_title('Image Match')
 
         # Memory gate.
-        ax_memory_match = fig.add_subplot(gs_bottom_center[1, 0])
+        ax_memory_match = fig.add_subplot(gs_bottom_center[0, 0])
         ax_memory_match.xaxis.set_major_locator(ticker.NullLocator())
         ax_memory_match.yaxis.set_major_locator(ticker.NullLocator())
         ax_memory_match.set_title('Memory Match')
 
-        # Replace gate.
-        ax_do_replace = fig.add_subplot(gs_bottom_center[2, 0])
-        ax_do_replace.xaxis.set_major_locator(ticker.NullLocator())
-        ax_do_replace.yaxis.set_major_locator(ticker.NullLocator())
-        ax_do_replace.set_title('Replace')
-
-        # Add new gate.
-        ax_do_add_new = fig.add_subplot(gs_bottom_center[3, 0])
-        ax_do_add_new.xaxis.set_major_locator(ticker.NullLocator())
-        ax_do_add_new.yaxis.set_major_locator(ticker.NullLocator())
-        ax_do_add_new.set_title('Add New')
+        # # Replace gate.
+        # ax_do_replace = fig.add_subplot(gs_bottom_center[2, 0])
+        # ax_do_replace.xaxis.set_major_locator(ticker.NullLocator())
+        # ax_do_replace.yaxis.set_major_locator(ticker.NullLocator())
+        # ax_do_replace.set_title('Replace')
+        #
+        # # Add new gate.
+        # ax_do_add_new = fig.add_subplot(gs_bottom_center[3, 0])
+        # ax_do_add_new.xaxis.set_major_locator(ticker.NullLocator())
+        # ax_do_add_new.yaxis.set_major_locator(ticker.NullLocator())
+        # ax_do_add_new.set_title('Add New')
 
         ######################################################################
         # Bottom Right: Memory section.
@@ -397,9 +397,9 @@ class VWM(Model):
                            figure=fig, color='black')
         l2 = lines.Line2D([0, 1], [0.58, 0.58], transform=fig.transFigure,
                           figure=fig, color='black')
-        l3 = lines.Line2D([0.5, 0.5], [0.0, 0.03], transform=fig.transFigure,
+        l3 = lines.Line2D([0.5, 0.5], [0.0, 0.24], transform=fig.transFigure,
                           figure=fig, color='black')
-        l4 = lines.Line2D([0.5, 0.5], [0.54, 0.58], transform=fig.transFigure,
+        l4 = lines.Line2D([0.5, 0.5], [0.40, 0.58], transform=fig.transFigure,
                           figure=fig, color='black')
         fig.lines.extend([l1, l2, l3, l4])
 
@@ -468,7 +468,9 @@ class VWM(Model):
             (ax_header_left_labels, ax_header_left, ax_header_right_labels, ax_header_right,
              ax_attention_question, ax_temporal_context,
              ax_image, ax_attention_image,
-             ax_image_match, ax_memory_match, ax_do_replace, ax_do_add_new,
+             # ax_image_match,
+             ax_memory_match,
+             # ax_do_replace, ax_do_add_new,
              ax_read_head, ax_visual_working_memory, ax_write_head) = fig.axes
 
             # initiate list of artists frames
@@ -526,12 +528,12 @@ class VWM(Model):
                                 for j in range(x.size(1)):
                                     val = x[i,j].item()
                                     fmt = f'{val:4.2f}' if (val > threshold) else ''
-                                    artists.append(ax.text(
-                                        j+0.5, i+0.5, fmt,
-                                        horizontalalignment='center',
-                                        verticalalignment='center',
-                                        fontsize=fs,
-                                        color='black' if val > 0.5 else 'white'))
+                                    # artists.append(ax.text(
+                                    #     j+0.5, i+0.5, fmt,
+                                    #     horizontalalignment='center',
+                                    #     verticalalignment='center',
+                                    #     fontsize=fs,
+                                    #     color='black' if val > 0.5 else 'white'))
 
                     ######################################################################
                     # Create "Artists" drawing data on "ImageAxes".
@@ -590,18 +592,18 @@ class VWM(Model):
                     ######################################################################
                     # Bottom center: gates section.
 
-                    # Image gate.
-                    heatmap(ax_image_match, image_match[[sample], None], fs='large')
-
+                    # # Image gate.
+                    # heatmap(ax_image_match, image_match[[sample], None], fs='large')
+                    #
                     # Memory gate.
                     heatmap(ax_memory_match, memory_match[[sample], None], fs='large')
-
-                    # Image gate.
-                    heatmap(ax_do_replace, do_replace[[sample], None], fs='large')
-
-                    # Memory gate.
-                    heatmap(ax_do_add_new, do_add_new[[sample], None], fs='large')
-
+                    #
+                    # # Image gate.
+                    # heatmap(ax_do_replace, do_replace[[sample], None], fs='large')
+                    #
+                    # # Memory gate.
+                    # heatmap(ax_do_add_new, do_add_new[[sample], None], fs='large')
+                    #
                     ######################################################################
                     # Bottom Right: Memory section.
 
