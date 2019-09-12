@@ -42,13 +42,19 @@ class ReasoningUnit(Module):
         # call base constructor
         super(ReasoningUnit, self).__init__()
 
-        self.visual_object_validator = torch.nn.Sequential(
-            linear(1, 1, bias=True),
-            torch.nn.Sigmoid())
+        self.va_scale = torch.nn.Parameter(torch.ones(1).type(AppState().dtype))
+        self.va_shift = torch.nn.Parameter(torch.ones(1).type(AppState().dtype))
 
-        self.memory_object_validator = torch.nn.Sequential(
-            linear(1, 1, bias=True),
-            torch.nn.Sigmoid())
+        self.rh_scale = torch.nn.Parameter(torch.ones(1).type(AppState().dtype))
+        self.rh_shift = torch.nn.Parameter(torch.ones(1).type(AppState().dtype))
+
+        # self.visual_object_validator = torch.nn.Sequential(
+        #     linear(1, 1, bias=True),
+        #     torch.nn.Sigmoid())
+        #
+        # self.memory_object_validator = torch.nn.Sequential(
+        #     linear(1, 1, bias=True),
+        #     torch.nn.Sigmoid())
 
     def forward(self, control_state, visual_attention, read_head, temporal_class_weights):
         """
@@ -65,14 +71,18 @@ class ReasoningUnit(Module):
         # Compute a summary of each attention vector in [0,1]
         # The more the attention is localized, the more the summary will be closer to 1
 
-        va_aggregate = (visual_attention * visual_attention).sum(dim=-1, keepdim=True)
-        rh_aggregate = (read_head * read_head).sum(dim=-1, keepdim=True)
+        va_aggregate = (visual_attention * visual_attention).sum(dim=-1, keepdim=False)
+        rh_aggregate = (read_head * read_head).sum(dim=-1, keepdim=False)
 
-        valid_vo = self.visual_object_validator(va_aggregate)
-        valid_vo = valid_vo.squeeze(-1)
+        va_scale = 1 + torch.nn.functional.softplus(self.va_scale)
+        va_shift = torch.nn.functional.sigmoid(self.va_shift)
+        valid_vo = torch.nn.functional.sigmoid(va_scale*(va_aggregate-va_shift))
+        # valid_vo = valid_vo.squeeze(-1)
 
-        valid_mo = self.memory_object_validator(rh_aggregate)
-        valid_mo = valid_mo.squeeze(-1)
+        rh_scale = 1 + torch.nn.functional.softplus(self.rh_scale)
+        rh_shift = torch.nn.functional.sigmoid(self.rh_shift)
+        valid_mo = torch.nn.functional.sigmoid(rh_scale*(rh_aggregate-rh_shift))
+        # valid_mo = valid_mo.squeeze(-1)
 
         # get t_now, t_last, t_latest, t_none from temporal_class_weights
         t_now = temporal_class_weights[:, 0]
