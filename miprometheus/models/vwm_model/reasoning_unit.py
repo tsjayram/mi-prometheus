@@ -42,12 +42,16 @@ class ReasoningUnit(Module):
         # call base constructor
         super(ReasoningUnit, self).__init__()
 
-        self.reasoning_module = torch.nn.Sequential(linear(6, 12, bias=True),
-                                                    torch.nn.ELU(),
-                                                    linear(12, 12, bias=True),
-                                                    torch.nn.ELU(),
-                                                    linear(12, 4, bias=True),
-                                                    torch.nn.Sigmoid())
+        def reasoning_net():
+            return torch.nn.Sequential(linear(6, 12, bias=True),
+                                       torch.nn.ELU(),
+                                       linear(12, 12, bias=True),
+                                       torch.nn.ELU(),
+                                       linear(12, 3, bias=True),
+                                       torch.nn.Softmax())
+
+        self.match_gate_net = reasoning_net()
+        self.memory_gate_net = reasoning_net()
 
     def forward(self, control_state, visual_attention, read_head, temporal_class_weights):
         """
@@ -67,12 +71,14 @@ class ReasoningUnit(Module):
         va_aggregate = (visual_attention * visual_attention).sum(dim=-1, keepdim=True)
         rh_aggregate = (read_head * read_head).sum(dim=-1, keepdim=True)
 
-        r_in = torch.cat([temporal_class_weights, va_aggregate, rh_aggregate], dim=-1)
-        r_out = self.reasoning_module(r_in)
+        reasoning_input = torch.cat([temporal_class_weights, va_aggregate, rh_aggregate], dim=-1)
 
-        image_match = r_out[..., 0]
-        memory_match = r_out[..., 1]
-        do_replace = r_out[..., 2]
-        do_add_new = r_out[..., 3]
+        match_gate_out = self.match_gate_net(reasoning_input)
+        image_match = match_gate_out[..., 0]
+        memory_match = match_gate_out[..., 1]
+
+        memory_gate_out = self.memory_gate_net(reasoning_input)
+        do_replace = memory_gate_out[..., 0]
+        do_add_new = memory_gate_out[..., 1]
 
         return image_match, memory_match, do_replace, do_add_new
