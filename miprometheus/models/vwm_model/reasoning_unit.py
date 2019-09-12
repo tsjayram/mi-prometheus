@@ -42,19 +42,8 @@ class ReasoningUnit(Module):
         # call base constructor
         super(ReasoningUnit, self).__init__()
 
-        self.va_scale = torch.nn.Parameter(torch.ones(1).type(AppState().dtype))
-        self.va_shift = torch.nn.Parameter(torch.ones(1).type(AppState().dtype))
-
-        self.rh_scale = torch.nn.Parameter(torch.ones(1).type(AppState().dtype))
-        self.rh_shift = torch.nn.Parameter(torch.ones(1).type(AppState().dtype))
-
-        # self.visual_object_validator = torch.nn.Sequential(
-        #     linear(1, 1, bias=True),
-        #     torch.nn.Sigmoid())
-        #
-        # self.memory_object_validator = torch.nn.Sequential(
-        #     linear(1, 1, bias=True),
-        #     torch.nn.Sigmoid())
+        self.va_power = torch.nn.Parameter(torch.ones(1).type(AppState().dtype))
+        self.rh_power = torch.nn.Parameter(torch.ones(1).type(AppState().dtype))
 
     def forward(self, control_state, visual_attention, read_head, temporal_class_weights):
         """
@@ -74,14 +63,18 @@ class ReasoningUnit(Module):
         va_aggregate = (visual_attention * visual_attention).sum(dim=-1, keepdim=False)
         rh_aggregate = (read_head * read_head).sum(dim=-1, keepdim=False)
 
-        va_scale = 1 + torch.nn.functional.softplus(self.va_scale)
-        va_shift = torch.nn.functional.sigmoid(self.va_shift)
-        valid_vo = torch.nn.functional.sigmoid(va_scale*(va_aggregate-va_shift))
+        def normalize(x, p=2, eps=1e-12):
+            y = x ** p
+            z = (1-x) ** p
+            c_sum = torch.clamp(y + z, eps, 1)
+            return y / c_sum
+
+        va_power = 1 + torch.nn.functional.softplus(self.va_power)
+        valid_vo = normalize(va_aggregate, va_power)
         # valid_vo = valid_vo.squeeze(-1)
 
-        rh_scale = 1 + torch.nn.functional.softplus(self.rh_scale)
-        rh_shift = torch.nn.functional.sigmoid(self.rh_shift)
-        valid_mo = torch.nn.functional.sigmoid(rh_scale*(rh_aggregate-rh_shift))
+        rh_power = 1 + torch.nn.functional.softplus(self.rh_power)
+        valid_mo = normalize(rh_aggregate, rh_power)
         # valid_mo = valid_mo.squeeze(-1)
 
         # get t_now, t_last, t_latest, t_none from temporal_class_weights
