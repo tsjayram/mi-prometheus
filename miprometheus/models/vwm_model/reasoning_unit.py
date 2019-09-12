@@ -63,18 +63,17 @@ class ReasoningUnit(Module):
         va_aggregate = (visual_attention * visual_attention).sum(dim=-1, keepdim=False)
         rh_aggregate = (read_head * read_head).sum(dim=-1, keepdim=False)
 
-        def normalize(x, p=2, eps=1e-12):
+        def normalize(x, param, eps=1e-12):
+            p = 1 + torch.nn.functional.softplus(param)
             y = x ** p
             z = (1-x) ** p
             c_sum = torch.clamp(y + z, eps, 1)
             return y / c_sum
 
-        va_power = 1 + torch.nn.functional.softplus(self.va_power)
-        valid_vo = normalize(va_aggregate, va_power)
+        valid_vo = normalize(va_aggregate, self.va_power)
         # valid_vo = valid_vo.squeeze(-1)
 
-        rh_power = 1 + torch.nn.functional.softplus(self.rh_power)
-        valid_mo = normalize(rh_aggregate, rh_power)
+        valid_mo = normalize(rh_aggregate, self.rh_power)
         # valid_mo = valid_mo.squeeze(-1)
 
         # get t_now, t_last, t_latest, t_none from temporal_class_weights
