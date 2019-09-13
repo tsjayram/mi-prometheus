@@ -42,7 +42,13 @@ class ReasoningUnit(Module):
         # call base constructor
         super(ReasoningUnit, self).__init__()
 
-        def reasoning_net():
+        def validator_net():
+            return torch.nn.Sequential(linear(2 * dim, 2 * dim, bias=True),
+                                       torch.nn.ReLU(),
+                                       linear(2 * dim, 1, bias=True),
+                                       torch.nn.Sigmoid())
+
+        def gate_net():
             return torch.nn.Sequential(linear(6, 12, bias=True),
                                        torch.nn.ELU(),
                                        linear(12, 12, bias=True),
@@ -50,15 +56,21 @@ class ReasoningUnit(Module):
                                        linear(12, 3, bias=True),
                                        torch.nn.Softmax(dim=-1))
 
-        self.match_gate_net = reasoning_net()
-        self.memory_gate_net = reasoning_net()
+        self.visual_object_validator = validator_net()
+        self.memory_object_validator = validator_net()
 
-    def forward(self, control_state, visual_attention, read_head, temporal_class_weights):
+        self.match_gate_net = gate_net()
+        self.memory_gate_net = gate_net()
+
+    def forward(self, control_state, visual_object, visual_attention,
+                memory_object, read_head, temporal_class_weights):
         """
         Forward pass of the ``ReasoningUnit``.
 
         :param control_state: last control state
+        :param visual_object: visual object
         :param visual_attention: visual attention
+        :param memory_object: memory object
         :param read_head: read head
         :param temporal_class_weights
 
@@ -71,14 +83,22 @@ class ReasoningUnit(Module):
         va_aggregate = (visual_attention * visual_attention).sum(dim=-1, keepdim=True)
         rh_aggregate = (read_head * read_head).sum(dim=-1, keepdim=True)
 
-        reasoning_input = torch.cat([temporal_class_weights, va_aggregate, rh_aggregate], dim=-1)
+        # the visual object validator
+        concat_visual = torch.cat([control_state, visual_object], dim=-1)
+        valid_vo = self.visual_object_validator(concat_visual)
 
-        match_gate_out = self.match_gate_net(reasoning_input)
-        image_match = match_gate_out[..., 0]
-        memory_match = match_gate_out[..., 1]
+        # the memory object validator
+        concat_memory = torch.cat([control_state, memory_object], dim=-1)
+        valid_mo = self.memory_object_validator(concat_memory)
 
-        memory_gate_out = self.memory_gate_net(reasoning_input)
-        do_replace = memory_gate_out[..., 0]
-        do_add_new = memory_gate_out[..., 1]
+        gate_input = torch.cat([temporal_class_weights, valid_vo, valid_mo], dim=-1)
+
+        match_out = self.match_gate_net(gate_input)
+        image_match = match_out[..., 0]
+        memory_match = match_out[..., 1]
+
+        memory_out = self.memory_gate_net(gate_input)
+        do_replace = memory_out[..., 0]
+        do_add_new = memory_out[..., 1]
 
         return image_match, memory_match, do_replace, do_add_new
