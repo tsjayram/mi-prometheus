@@ -48,7 +48,7 @@ class ReasoningUnit(Module):
                                        linear(12, 12, bias=True),
                                        torch.nn.ELU(),
                                        linear(12, 3, bias=True),
-                                       torch.nn.Softmax())
+                                       torch.nn.Softmax(dim=-1))
 
         self.match_gate_net = reasoning_net()
         self.memory_gate_net = reasoning_net()
