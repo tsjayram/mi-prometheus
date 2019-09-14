@@ -80,5 +80,6 @@ class ReasoningUnit(Module):
         memory_gate_out = self.memory_gate_net(reasoning_input)
         do_replace = memory_gate_out[..., 0]
         do_add_new = memory_gate_out[..., 1]
+        do_add_new = do_add_new * (1 - memory_match)
 
         return image_match, memory_match, do_replace, do_add_new
