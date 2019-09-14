@@ -1,0 +1,11 @@
+# Load the COG config first.
+default_configs:
+  configs/cog/cog_vwm.yaml
+
+training:
+  problem:
+    tasks: [
+            AndCompareShape, AndCompareColor,
+           ]
+
+
