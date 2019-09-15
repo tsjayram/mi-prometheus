@@ -4,8 +4,6 @@ default_configs:
 
 training:
   problem:
-    tasks: [
+    tasks: &tasks [
             AndCompareShape, AndCompareColor,
            ]
-
-
