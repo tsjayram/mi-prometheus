@@ -43,15 +43,14 @@ class ReasoningUnit(Module):
         super(ReasoningUnit, self).__init__()
 
         def reasoning_net():
-            return torch.nn.Sequential(linear(6, 12, bias=True),
+            return torch.nn.Sequential(linear(6, 20, bias=True),
                                        torch.nn.ELU(),
-                                       linear(12, 12, bias=True),
+                                       linear(20, 20, bias=True),
                                        torch.nn.ELU(),
-                                       linear(12, 3, bias=True),
+                                       linear(20, 7, bias=True),
                                        torch.nn.Softmax(dim=-1))
 
-        self.match_gate_net = reasoning_net()
-        self.memory_gate_net = reasoning_net()
+        self.gate_net = reasoning_net()
 
     def forward(self, control_state, visual_attention, read_head, temporal_class_weights):
         """
@@ -73,12 +72,12 @@ class ReasoningUnit(Module):
 
         reasoning_input = torch.cat([temporal_class_weights, va_aggregate, rh_aggregate], dim=-1)
 
-        match_gate_out = self.match_gate_net(reasoning_input)
-        image_match = match_gate_out[..., 0]
-        memory_match = match_gate_out[..., 1]
+        gate_out = self.gate_net(reasoning_input)
 
-        memory_gate_out = self.memory_gate_net(reasoning_input)
-        do_replace = memory_gate_out[..., 0]
-        do_add_new = memory_gate_out[..., 1]
+        image_match = gate_out[..., 0] + gate_out[..., 4] + gate_out[..., 5]
+        memory_match = gate_out[..., 1] + gate_out[..., 3]
+
+        do_replace = gate_out[..., 3] + gate_out[..., 5]
+        do_add_new = gate_out[..., 2] + gate_out[..., 4]
 
         return image_match, memory_match, do_replace, do_add_new
