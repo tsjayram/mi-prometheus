@@ -468,7 +468,8 @@ class VWM(Model):
             (ax_header_left_labels, ax_header_left, ax_header_right_labels, ax_header_right,
              ax_attention_question, ax_temporal_context,
              ax_image, ax_attention_image,
-             ax_image_match, ax_memory_match, ax_do_replace, ax_do_add_new,
+             ax_image_match, ax_memory_match,
+             ax_do_replace, ax_do_add_new,
              ax_read_head, ax_visual_working_memory, ax_write_head) = fig.axes
 
             # initiate list of artists frames
@@ -570,7 +571,7 @@ class VWM(Model):
                     # Time context.
                     # temporal_class_weights given by order now, last, latest, none
                     # visualization in different order last, latest, now, none
-                    tcw_permute = temporal_class_weights[[[sample]], [[2, 1, 0, 3]]]
+                    tcw_permute = temporal_class_weights[[[sample]], [[3, 1, 2, 0]]] #          [[2, 1, 0, 3]]]
                     heatmap(ax_temporal_context, tcw_permute)
 
                     ######################################################################

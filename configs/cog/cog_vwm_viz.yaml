@@ -5,6 +5,7 @@ default_configs:
 testing:
   problem:
     batch_size: 1
+    # dataset_type: hard
     tasks: [ SimpleCompareShape,
              # AndCompareShape,
       # ExistLastObjectSameObject,
