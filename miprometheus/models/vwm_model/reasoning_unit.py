@@ -67,9 +67,19 @@ class ReasoningUnit(Module):
         # Compute a summary of each attention vector in [0,1]
         # The more the attention is localized, the more the summary will be closer to 1
 
-        va_aggregate = (visual_attention * visual_attention).sum(dim=-1, keepdim=True)
-        rh_aggregate = (read_head * read_head).sum(dim=-1, keepdim=True)
+        def entropy(p):
+            y = torch.distributions.categorical.Categorical(p).entropy()
+            return y[..., None]  # keepdims = True
 
+        def entropy_order_2(p):
+            return (p * p).sum(dim=-1, keepdim=True)
+
+        # va_aggregate = (visual_attention * visual_attention).sum(dim=-1, keepdim=True)
+        # rh_aggregate = (read_head * read_head).sum(dim=-1, keepdim=True)
+
+        va_aggregate = entropy(visual_attention)
+        rh_aggregate = entropy(read_head)
+        
         reasoning_input = torch.cat([temporal_class_weights, va_aggregate, rh_aggregate], dim=-1)
 
         gate_out = self.gate_net(reasoning_input)
