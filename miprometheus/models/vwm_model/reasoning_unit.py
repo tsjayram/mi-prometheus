@@ -43,7 +43,7 @@ class ReasoningUnit(Module):
         super(ReasoningUnit, self).__init__()
 
         def reasoning_net():
-            return torch.nn.Sequential(linear(6, 20, bias=True),
+            return torch.nn.Sequential(linear(5, 20, bias=True),
                                        torch.nn.ELU(),
                                        linear(20, 20, bias=True),
                                        torch.nn.ELU(),
