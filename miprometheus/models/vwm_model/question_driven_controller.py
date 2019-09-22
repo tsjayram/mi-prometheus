@@ -62,7 +62,7 @@ class QuestionDrivenController(Module):
         # instantiate neural network for T (temporal classifier that outputs 4 classes)
         self.temporal_classifier = torch.nn.Sequential(linear(dim, dim, bias=True),
                                                        torch.nn.ELU(),
-                                                       linear(dim, 4, bias=True),
+                                                       linear(dim, 3, bias=True),
                                                        torch.nn.Softmax(dim=-1))
 
     def forward(self, step, contextual_words, question_encoding, control_state):
