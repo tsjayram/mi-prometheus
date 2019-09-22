@@ -571,7 +571,7 @@ class VWM(Model):
                     # Time context.
                     # temporal_class_weights given by order now, last, latest, none
                     # visualization in different order last, latest, now, none
-                    tcw_permute = temporal_class_weights[[[sample]], [[3, 1, 2, 0]]] #          [[2, 1, 0, 3]]]
+                    tcw_permute = temporal_class_weights[[[sample]], [[1, 3, 2, 0]]] #          [[2, 1, 0, 3]]]
                     heatmap(ax_temporal_context, tcw_permute)
 
                     ######################################################################
