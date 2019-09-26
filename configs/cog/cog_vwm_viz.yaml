@@ -6,7 +6,7 @@ testing:
   problem:
     batch_size: 1
     # dataset_type: hard
-    tasks: [ SimpleCompareShape,
+    tasks: [ CompareShape,
              # AndCompareShape,
       # ExistLastObjectSameObject,
       # ExistColorSpace, ExistShapeSpace, ExistColorSpace,

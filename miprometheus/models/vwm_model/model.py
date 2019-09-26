@@ -311,7 +311,7 @@ class VWM(Model):
         ax_temporal_context = fig.add_subplot(gs_top[0, 20:24])
         ax_temporal_context.yaxis.set_major_locator(ticker.NullLocator())
         ax_temporal_context.xaxis.set_major_locator(ticker.FixedLocator([0, 1, 2, 3]))
-        ax_temporal_context.set_xticklabels(['Last', 'Latest', 'Now', 'None'],
+        ax_temporal_context.set_xticklabels(['A', 'B', 'C'],
                                             horizontalalignment='left',
                                             rotation=-45, rotation_mode='anchor')
         ax_temporal_context.set_title('Time Context')
@@ -571,7 +571,7 @@ class VWM(Model):
                     # Time context.
                     # temporal_class_weights given by order now, last, latest, none
                     # visualization in different order last, latest, now, none
-                    tcw_permute = temporal_class_weights[[[sample]], [[1, 3, 2, 0]]] #          [[2, 1, 0, 3]]]
+                    tcw_permute = temporal_class_weights[[[sample]], [[0, 1, 2]]]
                     heatmap(ax_temporal_context, tcw_permute)
 
                     ######################################################################
